@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:3001";
+const API_BASE = "https://taskmanager-api-5lu9.onrender.com";
 
 export interface Task {
   id: string | number;

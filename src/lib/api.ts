@@ -6,6 +6,7 @@ export interface Task {
   description?: string;
   status: "pending" | "in_progress" | "completed";
   createdAt?: string;
+  created_at?: string;
 }
 
 export async function fetchTasks(): Promise<Task[]> {

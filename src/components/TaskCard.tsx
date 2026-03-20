@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Trash2 } from "lucide-react";
+import { Trash2, Calendar } from "lucide-react";
 import StatusBadge from "./StatusBadge";
 import type { Task } from "@/lib/api";
 
@@ -9,7 +9,18 @@ interface TaskCardProps {
   onCycleStatus: (id: string | number, currentStatus: Task["status"]) => void;
 }
 
+function formatDate(dateStr?: string) {
+  if (!dateStr) return null;
+  try {
+    return new Date(dateStr).toLocaleDateString("en-US", {
+      month: "short", day: "numeric", year: "numeric",
+    });
+  } catch { return null; }
+}
+
 export default function TaskCard({ task, onDelete, onCycleStatus }: TaskCardProps) {
+  const date = formatDate(task.createdAt || (task as any).created_at);
+
   return (
     <motion.div
       layout
@@ -26,8 +37,14 @@ export default function TaskCard({ task, onDelete, onCycleStatus }: TaskCardProp
           {task.description && (
             <p className="mt-1.5 text-sm text-muted-foreground line-clamp-2 leading-relaxed">{task.description}</p>
           )}
-          <div className="mt-3">
+          <div className="mt-3 flex items-center gap-3">
             <StatusBadge status={task.status} onClick={() => onCycleStatus(task.id, task.status)} />
+            {date && (
+              <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Calendar className="h-3 w-3" />
+                {date}
+              </span>
+            )}
           </div>
         </div>
 

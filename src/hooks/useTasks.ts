@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchTasks, createTask, deleteTask, updateTaskStatus, Task } from "@/lib/api";
+import { fetchTasks, createTask, deleteTask, updateTask, Task } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 
 export function useTasks() {

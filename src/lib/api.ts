@@ -12,7 +12,8 @@ export interface Task {
 export async function fetchTasks(): Promise<Task[]> {
   const res = await fetch(`${API_BASE}/tasks`);
   if (!res.ok) throw new Error("Failed to fetch tasks");
-  return res.json();
+  const data = await res.json();
+  return data.tasks;
 }
 
 export async function createTask(data: { title: string; description: string; status: string }): Promise<Task> {

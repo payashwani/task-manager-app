@@ -30,11 +30,11 @@ export async function deleteTask(id: string | number): Promise<void> {
   if (!res.ok) throw new Error("Failed to delete task");
 }
 
-export async function updateTaskStatus(id: string | number, status: string): Promise<Task> {
+export async function updateTask(id: string | number, data: Partial<Pick<Task, "title" | "description" | "status">>): Promise<Task> {
   const res = await fetch(`${API_BASE}/tasks/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ status }),
+    body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error("Failed to update task");
   return res.json();

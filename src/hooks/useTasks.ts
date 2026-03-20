@@ -34,11 +34,11 @@ export function useTasks() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, status }: { id: string | number; status: string }) =>
-      updateTaskStatus(id, status),
+    mutationFn: ({ id, ...data }: { id: string | number } & Partial<Pick<Task, "title" | "description" | "status">>) =>
+      updateTask(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      toast({ title: "Status updated", description: "Task status has been changed." });
+      toast({ title: "Task updated", description: "Task has been updated." });
     },
     onError: () => {
       toast({ title: "Error", description: "Failed to update task.", variant: "destructive" });

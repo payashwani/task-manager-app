@@ -7,13 +7,22 @@ import AddTaskForm from "@/components/AddTaskForm";
 import TaskCard from "@/components/TaskCard";
 import TaskSkeleton from "@/components/TaskSkeleton";
 import EmptyState from "@/components/EmptyState";
+import EditTaskDialog from "@/components/EditTaskDialog";
 import { Toaster } from "@/components/ui/toaster";
 import { useTasks, cycleStatus } from "@/hooks/useTasks";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import type { Task } from "@/lib/api";
 
 export default function Index() {
   const [filter, setFilter] = useState("all");
   const { query, createMutation, deleteMutation, updateMutation } = useTasks();
+
+  const [editTask, setEditTask] = useState<Task | null>(null);
+  const [deleteId, setDeleteId] = useState<string | number | null>(null);
 
   const tasks: Task[] = query.data ?? [];
 
@@ -30,31 +39,28 @@ export default function Index() {
     updateMutation.mutate({ id, status: cycleStatus(current) });
   };
 
+  const confirmDelete = () => {
+    if (deleteId !== null) {
+      deleteMutation.mutate(deleteId);
+      setDeleteId(null);
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-background">
       <TaskSidebar activeFilter={filter} onFilterChange={setFilter} counts={counts} />
 
       <main className="flex-1 flex flex-col min-h-screen">
-        {/* Header */}
         <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur-sm px-6 py-4 md:px-8">
           <h1 className="text-xl font-bold tracking-tight text-foreground">Dashboard</h1>
           <p className="text-sm text-muted-foreground mt-0.5">Track and manage your tasks</p>
         </header>
 
         <div className="flex-1 p-6 md:p-8 space-y-6 max-w-5xl w-full mx-auto">
-          {/* Mobile filters */}
           <MobileNav activeFilter={filter} onFilterChange={setFilter} />
-
-          {/* Summary */}
           <SummaryCards counts={counts} />
+          <AddTaskForm onSubmit={(data) => createMutation.mutate(data)} isLoading={createMutation.isPending} />
 
-          {/* Add task form */}
-          <AddTaskForm
-            onSubmit={(data) => createMutation.mutate(data)}
-            isLoading={createMutation.isPending}
-          />
-
-          {/* Task list */}
           <div>
             <h2 className="text-sm font-semibold text-foreground mb-3">
               {filter === "all" ? "All Tasks" : filter === "pending" ? "Pending" : filter === "in_progress" ? "In Progress" : "Completed"}
@@ -72,8 +78,9 @@ export default function Index() {
                     <TaskCard
                       key={task.id}
                       task={task}
-                      onDelete={(id) => deleteMutation.mutate(id)}
+                      onDelete={(id) => setDeleteId(id)}
                       onCycleStatus={handleCycle}
+                      onEdit={(t) => setEditTask(t)}
                     />
                   ))}
                 </AnimatePresence>
@@ -82,6 +89,31 @@ export default function Index() {
           </div>
         </div>
       </main>
+
+      {/* Edit dialog */}
+      <EditTaskDialog
+        task={editTask}
+        open={!!editTask}
+        onOpenChange={(open) => { if (!open) setEditTask(null); }}
+        onSave={(id, data) => updateMutation.mutate({ id, ...data })}
+        isLoading={updateMutation.isPending}
+      />
+
+      {/* Delete confirmation */}
+      <AlertDialog open={deleteId !== null} onOpenChange={(open) => { if (!open) setDeleteId(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Task</AlertDialogTitle>
+            <AlertDialogDescription>Are you sure you want to delete this task? This action cannot be undone.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Trash2, Calendar } from "lucide-react";
+import { Trash2, Calendar, Pencil } from "lucide-react";
 import StatusBadge from "./StatusBadge";
 import type { Task } from "@/lib/api";
 
@@ -7,6 +7,7 @@ interface TaskCardProps {
   task: Task;
   onDelete: (id: string | number) => void;
   onCycleStatus: (id: string | number, currentStatus: Task["status"]) => void;
+  onEdit: (task: Task) => void;
 }
 
 function formatDate(dateStr?: string) {
@@ -18,7 +19,7 @@ function formatDate(dateStr?: string) {
   } catch { return null; }
 }
 
-export default function TaskCard({ task, onDelete, onCycleStatus }: TaskCardProps) {
+export default function TaskCard({ task, onDelete, onCycleStatus, onEdit }: TaskCardProps) {
   const date = formatDate(task.createdAt || (task as any).created_at);
 
   return (
@@ -48,14 +49,26 @@ export default function TaskCard({ task, onDelete, onCycleStatus }: TaskCardProp
           </div>
         </div>
 
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={() => onDelete(task.id)}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground opacity-0 transition-all duration-150 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive"
-        >
-          <Trash2 className="h-4 w-4" />
-        </motion.button>
+        <div className="flex items-center gap-1">
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => onEdit(task)}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-all duration-150 hover:bg-accent hover:text-accent-foreground"
+            title="Edit task"
+          >
+            <Pencil className="h-4 w-4" />
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => onDelete(task.id)}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-destructive transition-all duration-150 hover:bg-destructive/10"
+            title="Delete task"
+          >
+            <Trash2 className="h-4 w-4" />
+          </motion.button>
+        </div>
       </div>
     </motion.div>
   );
